@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from "./lib/supabase";
 import { motion, AnimatePresence } from 'motion/react';
 import { Student, Quiz, CalendarEvent, PortalSettings } from './types';
@@ -54,7 +54,7 @@ export default function App() {
   const [students, setStudents] = useState<Student[]>(INITIAL_STUDENTS);
   const [quizzes, setQuizzes] = useState<Quiz[]>(INITIAL_QUIZZES);
   const [events, setEvents] = useState<CalendarEvent[]>(INITIAL_EVENTS);
-  const [selectedStudentId, setSelectedStudentId] = useState<string>('julian-stark');
+  const [selectedStudentId, setSelectedStudentId] = useState<string>('');
   const [settings, setSettings] = useState<PortalSettings>(INITIAL_SETTINGS);
 
   // Student Space interactive quiz states
@@ -81,7 +81,11 @@ export default function App() {
 
   // Global modifiers
   const handleAddStudent = (newStudent: Student) => {
-    setStudents(prev => [...prev, newStudent]);
+    setStudents(prev => {
+      const next = [...prev, newStudent];
+      try { localStorage.setItem('students', JSON.stringify(next)); } catch (e) {}
+      return next;
+    });
     setSelectedStudentId(newStudent.id);
     setActiveParentTab('dashboard');
   };
@@ -91,7 +95,11 @@ export default function App() {
       ...newQuizData,
       id: `q-${Date.now()}`
     };
-    setQuizzes(prev => [newQuiz, ...prev]);
+    setQuizzes(prev => {
+      const next = [newQuiz, ...prev];
+      try { localStorage.setItem('quizzes', JSON.stringify(next)); } catch (e) {}
+      return next;
+    });
   };
 
   const handleAddEvent = (newEventData: Omit<CalendarEvent, 'id'>) => {
@@ -99,27 +107,116 @@ export default function App() {
       ...newEventData,
       id: `e-${Date.now()}`
     };
-    setEvents(prev => [...prev, newEvent]);
+    setEvents(prev => {
+      const next = [...prev, newEvent];
+      try { localStorage.setItem('events', JSON.stringify(next)); } catch (e) {}
+      return next;
+    });
   };
 
   const handleSaveSettings = (updatedSettings: PortalSettings) => {
     setSettings(updatedSettings);
     setParentName(updatedSettings.fullName);
+    try {
+      localStorage.setItem('settings', JSON.stringify(updatedSettings));
+    } catch (e) {
+      // ignore
+    }
+    // persist portal settings (phone, name) into parentProfiles for the logged-in email
+    try {
+      const profilesRaw = localStorage.getItem('parentProfiles');
+      const profiles = profilesRaw ? JSON.parse(profilesRaw) : {};
+      const key = updatedSettings.email?.trim().toLowerCase();
+      if (key) {
+        const existing = profiles[key] || {};
+        profiles[key] = {
+          name: updatedSettings.fullName,
+          phone: updatedSettings.phone || existing.phone || '',
+          password: existing.password || ''
+        };
+        localStorage.setItem('parentProfiles', JSON.stringify(profiles));
+      }
+    } catch (e) {
+      // ignore storage errors
+    }
   };
 
   const handleEditStudent = (updatedStudent: Student) => {
-    setStudents(prev => prev.map(s => s.id === updatedStudent.id ? updatedStudent : s));
+    setStudents(prev => {
+      const next = prev.map(s => s.id === updatedStudent.id ? updatedStudent : s);
+      try { localStorage.setItem('students', JSON.stringify(next)); } catch (e) {}
+      return next;
+    });
   };
 
   const handleDeleteStudent = (id: string) => {
     setStudents(prev => {
       const remaining = prev.filter(s => s.id !== id);
+      try { localStorage.setItem('students', JSON.stringify(remaining)); } catch (e) {}
       if (selectedStudentId === id && remaining.length > 0) {
         setSelectedStudentId(remaining[0].id);
       }
       return remaining;
     });
   };
+
+  // Load persisted students from localStorage on mount
+  React.useEffect(() => {
+    try {
+      const rawStudents = localStorage.getItem('students');
+      const persistedStudents = rawStudents ? JSON.parse(rawStudents) as Student[] : null;
+      if (Array.isArray(persistedStudents) && persistedStudents.length > 0) {
+        setStudents(persistedStudents);
+      }
+
+      const rawQuizzes = localStorage.getItem('quizzes');
+      const persistedQuizzes = rawQuizzes ? JSON.parse(rawQuizzes) as Quiz[] : null;
+      if (Array.isArray(persistedQuizzes) && persistedQuizzes.length > 0) {
+        setQuizzes(persistedQuizzes);
+      }
+
+      const rawEvents = localStorage.getItem('events');
+      const persistedEvents = rawEvents ? JSON.parse(rawEvents) as CalendarEvent[] : null;
+      if (Array.isArray(persistedEvents) && persistedEvents.length > 0) {
+        setEvents(persistedEvents);
+      }
+
+      const rawSettings = localStorage.getItem('settings');
+      const persistedSettings = rawSettings ? JSON.parse(rawSettings) as PortalSettings : null;
+      if (persistedSettings) {
+        setSettings(persistedSettings);
+      }
+
+      const rawSelected = localStorage.getItem('selectedStudentId');
+      if (rawSelected && persistedStudents && persistedStudents.find(s => s.id === rawSelected)) {
+        setSelectedStudentId(rawSelected);
+      } else if (persistedStudents && persistedStudents.length > 0) {
+        setSelectedStudentId(persistedStudents[0].id);
+      }
+
+      // also try to restore portal settings from parentProfiles if available
+      const profilesRaw = localStorage.getItem('parentProfiles');
+      if (profilesRaw) {
+        const profiles = JSON.parse(profilesRaw);
+        const key = (persistedSettings?.email || settings.email || '').trim().toLowerCase();
+        if (key && profiles[key]) {
+          setSettings(prev => ({ ...prev, phone: profiles[key].phone || prev.phone }));
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (selectedStudentId) {
+        localStorage.setItem('selectedStudentId', selectedStudentId);
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [selectedStudentId]);
 
   const handleStartSolvingQuiz = (quiz: Quiz) => {
     setActiveSolvingQuiz(quiz);
@@ -380,11 +477,23 @@ export default function App() {
           );
         case 'learning-path':
           return (
-            <LearningPath
-              student={currentStudent}
-              quizzes={quizzes}
-              onChangeTab={setActiveParentTab}
-            />
+            currentStudent ? (
+              <LearningPath
+                student={currentStudent}
+                quizzes={quizzes}
+                onChangeTab={setActiveParentTab}
+              />
+            ) : (
+              <div className="p-6">
+                <div className="bg-white border border-slate-200/80 rounded-2xl p-6 text-center">
+                  <h3 className="font-sans font-bold text-lg text-slate-900">No student selected</h3>
+                  <p className="text-sm text-slate-500 mt-2">Add a child profile to view the learning path and personalized recommendations.</p>
+                  <div className="mt-4">
+                    <button onClick={() => setActiveParentTab('add-child')} className="py-2 px-4 bg-orange-600 text-white rounded-xl">Add Student Profile</button>
+                  </div>
+                </div>
+              </div>
+            )
           );
         case 'assessments':
           return (
@@ -397,26 +506,62 @@ export default function App() {
           );
         case 'analytics':
           return (
-            <Analytics
-              student={currentStudent}
-              quizzes={quizzes}
-              onChangeTab={setActiveParentTab}
-            />
+            currentStudent ? (
+              <Analytics
+                student={currentStudent}
+                quizzes={quizzes}
+                onChangeTab={setActiveParentTab}
+              />
+            ) : (
+              <div className="p-6">
+                <div className="bg-white border border-slate-200/80 rounded-2xl p-6 text-center">
+                  <h3 className="font-sans font-bold text-lg text-slate-900">No student selected</h3>
+                  <p className="text-sm text-slate-500 mt-2">Add a child profile to view analytics and diagnostics.</p>
+                  <div className="mt-4">
+                    <button onClick={() => setActiveParentTab('add-child')} className="py-2 px-4 bg-orange-600 text-white rounded-xl">Add Student Profile</button>
+                  </div>
+                </div>
+              </div>
+            )
           );
         case 'curriculum':
-          return (
-            <Curriculum
-              student={currentStudent}
-            />
-          );
+            return (
+              currentStudent ? (
+                <Curriculum
+                  student={currentStudent}
+                />
+              ) : (
+                <div className="p-6">
+                  <div className="bg-white border border-slate-200/80 rounded-2xl p-6 text-center">
+                    <h3 className="font-sans font-bold text-lg text-slate-900">No student selected</h3>
+                    <p className="text-sm text-slate-500 mt-2">Add a child profile to explore the curriculum and track chapter completion.</p>
+                    <div className="mt-4">
+                      <button onClick={() => setActiveParentTab('add-child')} className="py-2 px-4 bg-orange-600 text-white rounded-xl">Add Student Profile</button>
+                    </div>
+                  </div>
+                </div>
+              )
+            );
         case 'calendar':
           return (
-            <AcademicCalendar
-              events={events}
-              selectedStudentId={selectedStudentId}
-              studentName={currentStudent.name}
-              onAddEvent={handleAddEvent}
-            />
+            currentStudent ? (
+              <AcademicCalendar
+                events={events}
+                selectedStudentId={selectedStudentId}
+                studentName={currentStudent.name}
+                onAddEvent={handleAddEvent}
+              />
+            ) : (
+              <div className="p-6">
+                <div className="bg-white border border-slate-200/80 rounded-2xl p-6 text-center">
+                  <h3 className="font-sans font-bold text-lg text-slate-900">No student selected</h3>
+                  <p className="text-sm text-slate-500 mt-2">Add a child profile to view and schedule academic events.</p>
+                  <div className="mt-4">
+                    <button onClick={() => setActiveParentTab('add-child')} className="py-2 px-4 bg-orange-600 text-white rounded-xl">Add Student Profile</button>
+                  </div>
+                </div>
+              </div>
+            )
           );
         case 'support':
           return (
@@ -496,13 +641,32 @@ export default function App() {
             <Login
               mode={loginMode}
               onBack={() => setRole('gateway')}
-              onLoginSuccess={(name) => {
+              onLoginSuccess={(name, email) => {
                 if (loginMode === 'parent') {
-                  setParentName(name);
+                    // load persisted parent profile (if any)
+                    const profilesRaw = localStorage.getItem('parentProfiles');
+                    const profiles = profilesRaw ? JSON.parse(profilesRaw) : {};
+                    const key = email?.trim().toLowerCase() || '';
+                    const stored = key ? profiles[key] : null;
+                    setParentName(name);
+                    // update portal settings to reflect logged-in parent's profile
+                    setSettings(prev => ({
+                      ...prev,
+                      fullName: name,
+                      email: email || prev.email,
+                      phone: stored?.phone || prev.phone || ''
+                    }));
                   setRole('parent_portal');
                   setActiveParentTab('dashboard');
+                  // Keep previously assigned children loaded from persistence.
+                  // Do not clear students so added children remain across logins.
+                  if (!selectedStudentId && students.length > 0) {
+                    setSelectedStudentId(students[0].id);
+                  }
                 } else if (loginMode === 'student') {
-                  const matchedStudent = students.find(s => s.name.toLowerCase() === name.toLowerCase()) || students.find(s => s.id === 'julian-stark') || students[0];
+                  const matchedStudent = (email && students.find(s => s.email.toLowerCase() === email.toLowerCase()))
+                    || students.find(s => s.name.toLowerCase() === name.toLowerCase())
+                    || students.find(s => s.id === 'julian-stark') || students[0];
                   if (matchedStudent) {
                     setSelectedStudentId(matchedStudent.id);
                   }
@@ -840,7 +1004,7 @@ export default function App() {
                             </h2>
 
                             {/* Option Items */}
-                            {getActiveQuizQuestions()[currentQuestionIndex]?.type === 'mcq' || getActiveQuizQuestions()[currentQuestionIndex]?.type === 'true_false' ? (
+                            {getActiveQuizQuestions()[currentQuestionIndex]?.options?.length > 0 ? (
                               <div className="grid grid-cols-1 gap-3 pt-2">
                                 {(
                                   getActiveQuizQuestions()[currentQuestionIndex]?.options && getActiveQuizQuestions()[currentQuestionIndex]?.options.length > 0 

@@ -46,6 +46,8 @@ export default function Dashboard({
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [deletingStudentId, setDeletingStudentId] = useState<string | null>(null);
 
+  const hasStudents = students.length > 0;
+
   // Filter students based on search
   const filteredStudents = students.filter(student => 
     student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -121,93 +123,95 @@ export default function Dashboard({
         </div>
       </motion.div>
 
-      {/* Bento Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        {/* Metric 1: Avg Completion */}
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          whileHover={{ y: -4, scale: 1.01, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.05)" }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          className="bg-white border border-slate-200/80 rounded-2xl p-6 flex items-center justify-between shadow-sm relative overflow-hidden group cursor-default"
-        >
-          <div className="space-y-2">
-            <span className="text-[10px] font-mono font-semibold tracking-wider text-slate-500 uppercase block">
-              Total Average Progress
-            </span>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-3xl font-sans font-extrabold text-slate-900">
-                {avgCompletionPercentage || 0}%
-              </span>
-              <span className="text-xs font-sans text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded">
-                +4.2%
-              </span>
-            </div>
-            {/* Progress Bar */}
-            <div className="w-44 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: `${avgCompletionPercentage}%` }}
-                transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
-                className="h-full bg-gradient-to-r from-orange-500 to-orange-600 rounded-full" 
-              />
-            </div>
-          </div>
-          <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-            <TrendingUp size={22} />
-          </div>
-        </motion.div>
+      {hasStudents ? (
+        <>
+          {/* Bento Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {/* Metric 1: Avg Completion */}
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -4, scale: 1.01, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.05)" }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="bg-white border border-slate-200/80 rounded-2xl p-6 flex items-center justify-between shadow-sm relative overflow-hidden group cursor-default"
+            >
+              <div className="space-y-2">
+                <span className="text-[10px] font-mono font-semibold tracking-wider text-slate-500 uppercase block">
+                  Total Average Progress
+                </span>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-3xl font-sans font-extrabold text-slate-900">
+                    {avgCompletionPercentage || 0}%
+                  </span>
+                  <span className="text-xs font-sans text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded">
+                    +4.2%
+                  </span>
+                </div>
+                {/* Progress Bar */}
+                <div className="w-44 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${avgCompletionPercentage}%` }}
+                    transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
+                    className="h-full bg-gradient-to-r from-orange-500 to-orange-600 rounded-full" 
+                  />
+                </div>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <TrendingUp size={22} />
+              </div>
+            </motion.div>
 
-        {/* Metric 2: Active Subject Modules */}
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          whileHover={{ y: -4, scale: 1.01, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.05)" }}
-          transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.05 }}
-          className="bg-white border border-slate-200/80 rounded-2xl p-6 flex items-center justify-between shadow-sm relative overflow-hidden group cursor-default"
-        >
-          <div className="space-y-1">
-            <span className="text-[10px] font-mono font-semibold tracking-wider text-slate-500 uppercase block">
-              Active Subject Modules
-            </span>
-            <div className="text-3xl font-sans font-extrabold text-slate-900">
-              {totalSubjectsCount}
-            </div>
-            <span className="text-[11px] font-sans text-slate-400 block">
-              Configured across all profiles
-            </span>
-          </div>
-          <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-            <BookOpen size={22} />
-          </div>
-        </motion.div>
+            {/* Metric 2: Active Subject Modules */}
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -4, scale: 1.01, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.05)" }}
+              transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.05 }}
+              className="bg-white border border-slate-200/80 rounded-2xl p-6 flex items-center justify-between shadow-sm relative overflow-hidden group cursor-default"
+            >
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-semibold tracking-wider text-slate-500 uppercase block">
+                  Active Subject Modules
+                </span>
+                <div className="text-3xl font-sans font-extrabold text-slate-900">
+                  {totalSubjectsCount}
+                </div>
+                <span className="text-[11px] font-sans text-slate-400 block">
+                  Configured across all profiles
+                </span>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <BookOpen size={22} />
+              </div>
+            </motion.div>
 
-        {/* Metric 3: Completed Quizzes */}
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          whileHover={{ y: -4, scale: 1.01, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.05)" }}
-          transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
-          className="bg-white border border-slate-200/80 rounded-2xl p-6 flex items-center justify-between shadow-sm relative overflow-hidden group cursor-default"
-        >
-          <div className="space-y-1">
-            <span className="text-[10px] font-mono font-semibold tracking-wider text-slate-500 uppercase block">
-              Evaluations Taken
-            </span>
-            <div className="text-3xl font-sans font-extrabold text-slate-900">
-              {totalCompletedQuizzes}
-            </div>
-            <span className="text-[11px] font-sans text-slate-400 block">
-              Graded and logged in portal
-            </span>
+            {/* Metric 3: Completed Quizzes */}
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -4, scale: 1.01, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.05)" }}
+              transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
+              className="bg-white border border-slate-200/80 rounded-2xl p-6 flex items-center justify-between shadow-sm relative overflow-hidden group cursor-default"
+            >
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-semibold tracking-wider text-slate-500 uppercase block">
+                  Evaluations Taken
+                </span>
+                <div className="text-3xl font-sans font-extrabold text-slate-900">
+                  {totalCompletedQuizzes}
+                </div>
+                <span className="text-[11px] font-sans text-slate-400 block">
+                  Graded and logged in portal
+                </span>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <Award size={22} />
+              </div>
+            </motion.div>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-            <Award size={22} />
-          </div>
-        </motion.div>
-      </div>
 
-      {(latestEvaluationQuiz || quizzes.length > 0) && (
+          {(latestEvaluationQuiz || quizzes.length > 0) && (
         <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between gap-3 pb-4 border-b border-slate-100">
             <div>
@@ -274,6 +278,26 @@ export default function Dashboard({
               </div>
             </div>
           )}
+        </div>
+          )}
+        </>
+      ) : (
+        <div className="rounded-3xl border border-dashed border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-lg font-sans font-extrabold text-orange-600">No children added yet</h2>
+              <p className="text-sm text-slate-500 font-sans mt-1">
+                Add your first child profile to start tracking progress, assessments, and learning milestones.
+              </p>
+            </div>
+            <button
+              onClick={onAddStudentClick}
+              className="py-2.5 px-4 bg-orange-600 hover:bg-orange-500 text-white font-sans font-semibold text-xs rounded-xl transition-all cursor-pointer flex items-center gap-2 shadow-md shadow-orange-600/10"
+            >
+              <Plus size={15} />
+              <span>Add Student Profile</span>
+            </button>
+          </div>
         </div>
       )}
 
@@ -403,21 +427,25 @@ export default function Dashboard({
               ))}
             </div>
           ) : (
-            /* EMPTY SEARCH STATE (Screen 5 representation) */
+            /* EMPTY STATE */
             <div className="bg-white border border-slate-200/80 rounded-2xl p-8 text-center flex flex-col items-center justify-center shadow-sm py-12">
               <div className="w-16 h-16 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center mb-4">
                 <ClipboardList size={32} />
               </div>
-              <h3 className="font-sans font-bold text-lg text-slate-900 mb-2">No profiles match parameters</h3>
+              <h3 className="font-sans font-bold text-lg text-slate-900 mb-2">
+                {students.length === 0 ? 'No children added yet' : 'No profiles match parameters'}
+              </h3>
               <p className="text-slate-500 text-sm max-w-sm mx-auto mb-6 font-sans">
-                No children matched your search filter "{searchTerm}". Make sure you spelled the name correctly or add a brand new child's profile to track their progress.
+                {students.length === 0
+                  ? 'Start by adding your first child profile to monitor their progress and upcoming assessments.'
+                  : `No children matched your search filter "${searchTerm}". Make sure you spelled the name correctly or add a brand new child's profile to track their progress.`}
               </p>
               <button
                 onClick={onAddStudentClick}
                 className="py-2.5 px-4 bg-orange-600 hover:bg-orange-500 text-white font-sans font-semibold text-xs rounded-xl transition-all cursor-pointer flex items-center gap-2 shadow-md shadow-orange-600/10"
               >
                 <Plus size={15} />
-                <span>+ ADD NEW CHILD</span>
+                <span>{students.length === 0 ? '+ ADD YOUR FIRST CHILD' : '+ ADD NEW CHILD'}</span>
               </button>
             </div>
           )}
@@ -425,19 +453,17 @@ export default function Dashboard({
 
         {/* RIGHT COLUMN: Upcoming exams & tip focus */}
         <div className="lg:col-span-4 space-y-6">
-          
-          {/* Upcoming assessments widget */}
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
-              <h3 className="font-sans font-extrabold text-sm text-orange-600 flex items-center gap-2">
-                <Calendar size={16} className="text-orange-500" />
-                <span>Upcoming Exams &amp; Assessments</span>
-              </h3>
-            </div>
+          {hasStudents && upcomingStudentEvents.length > 0 && (
+            <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                <h3 className="font-sans font-extrabold text-sm text-orange-600 flex items-center gap-2">
+                  <Calendar size={16} className="text-orange-500" />
+                  <span>Upcoming Exams &amp; Assessments</span>
+                </h3>
+              </div>
 
-            <div className="space-y-3.5">
-              {upcomingStudentEvents.length > 0 ? (
-                upcomingStudentEvents.map((event) => (
+              <div className="space-y-3.5">
+                {upcomingStudentEvents.map((event) => (
                   <div key={event.id} className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex gap-3">
                     <div className="w-9 h-9 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center shrink-0 font-sans font-bold text-xs">
                       {event.type === 'exam' ? 'EX' : 'AS'}
@@ -452,21 +478,17 @@ export default function Dashboard({
                       </div>
                     </div>
                   </div>
-                ))
-              ) : (
-                <p className="text-slate-400 text-xs font-sans text-center py-4">
-                  No upcoming school evaluations scheduled.
-                </p>
-              )}
+                ))}
 
-              <button 
-                onClick={() => onChangeTab('calendar')}
-                className="w-full py-2.5 text-center bg-orange-50 hover:bg-orange-100 font-sans font-semibold text-xs text-orange-600 hover:text-orange-500 rounded-xl transition-all border border-orange-200 cursor-pointer"
-              >
-                View Full Academic Calendar
-              </button>
+                <button 
+                  onClick={() => onChangeTab('calendar')}
+                  className="w-full py-2.5 text-center bg-orange-50 hover:bg-orange-100 font-sans font-semibold text-xs text-orange-600 hover:text-orange-500 rounded-xl transition-all border border-orange-200 cursor-pointer"
+                >
+                  View Full Academic Calendar
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Parental Tip Focus Widget */}
           <div className="bg-orange-600 text-orange-50 rounded-2xl p-6 shadow-md border border-orange-700 relative overflow-hidden">

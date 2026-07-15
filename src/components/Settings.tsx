@@ -135,7 +135,6 @@ export default function PortalSettingsComponent({ settings, onSaveSettings }: Se
                   </label>
                   <input
                     type="text"
-                    required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full p-2.5 bg-white border border-slate-200 rounded-xl font-sans text-xs focus:border-orange-500 outline-none transition-colors"

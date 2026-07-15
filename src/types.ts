@@ -17,6 +17,11 @@ export interface Student {
   academicYearFrom: string;
   academicYearTo: string;
   email: string;
+  /**
+   * Password set by parent for student login. Stored here for demo purposes.
+   * In a real app this should be hashed and stored securely on the server.
+   */
+  password?: string;
   subjects: Subject[];
   avatarColor: string;
 }

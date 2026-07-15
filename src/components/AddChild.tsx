@@ -25,13 +25,19 @@ export default function AddChild({ onBack, onAddStudent }: AddChildProps) {
   const [yearFrom, setYearFrom] = useState('2024');
   const [yearTo, setYearTo] = useState('2025');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   // Local Success message banner
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !school || !email) return;
+    if (!name || !school || !email || !password) return;
+    if (password !== confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
 
     // Pick a cute colorful gradient for the avatar
     const avatars = [
@@ -52,6 +58,7 @@ export default function AddChild({ onBack, onAddStudent }: AddChildProps) {
       academicYearFrom: yearFrom,
       academicYearTo: yearTo,
       email,
+      password,
       avatarColor: pickedAvatar,
       subjects: [
         { id: 'math', name: 'Mathematics', chaptersCount: 12, completedChapters: 0, percentage: 0, score: 0, status: 'In Progress' },
@@ -226,6 +233,39 @@ export default function AddChild({ onBack, onAddStudent }: AddChildProps) {
                 className="w-full p-2.5 bg-white border border-slate-200 rounded-xl font-sans text-xs focus:border-orange-500 outline-none transition-colors"
               />
             </div>
+
+              {/* Student Password */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-mono uppercase font-semibold text-slate-500 block">
+                    Student Password
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    minLength={6}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Create a password for student login"
+                    className="w-full p-2.5 bg-white border border-slate-200 rounded-xl font-sans text-xs focus:border-orange-500 outline-none transition-colors"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-mono uppercase font-semibold text-slate-500 block">
+                    Confirm Password
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={confirmPassword}
+                    minLength={6}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm password"
+                    className="w-full p-2.5 bg-white border border-slate-200 rounded-xl font-sans text-xs focus:border-orange-500 outline-none transition-colors"
+                  />
+                </div>
+              </div>
 
             {/* Form actions */}
             <div className="flex justify-end gap-3 pt-6 border-t border-slate-100">

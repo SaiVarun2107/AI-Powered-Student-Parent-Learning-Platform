@@ -2,11 +2,16 @@ import express from "express";
 import path from "path";
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
+import { buildPrompt } from "./rag/prompt";
+import { getCurriculum } from "./services/curriculumService";
+import { searchKnowledge } from "./rag/search";
 
 const result = dotenv.config();
 
 console.log(result);
 console.log("API KEY =", process.env.GEMINI_API_KEY);
+console.log("SUPABASE URL =", process.env.VITE_SUPABASE_URL);
+console.log("SERVICE ROLE =", process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 // Initialize Express
 const app = express();
@@ -31,10 +36,41 @@ const getGeminiClient = () => {
     }
   });
 };
+async function generateWithRetry(
+  ai: GoogleGenAI,
+  prompt: string,
+  config: any
+) {
+  const MAX_RETRIES = 3;
 
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      console.log(`Gemini Attempt ${attempt}/${MAX_RETRIES}`);
+
+      return await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: prompt,
+        config,
+      });
+
+    } catch (err: any) {
+
+      if (err.status === 503 && attempt < MAX_RETRIES) {
+        console.log("⏳ Gemini busy. Retrying in 5 seconds...");
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        continue;
+      }
+
+      throw err;
+    }
+  }
+
+  throw new Error("Gemini failed after multiple retries.");
+}
 // API Endpoint to Generate 10 Questions based on Board, Class, Subject, Chapter, Topics, and Difficulty
 app.post("/api/assessment/generate", async (req, res) => {
   const { board, grade, subject, chapter, topics, difficulty } = req.body;
+  
 
   if (!board || !grade || !subject || !chapter) {
     return res.status(400).json({ error: "Missing required fields (board, grade, subject, chapter)" });
@@ -49,36 +85,51 @@ app.post("/api/assessment/generate", async (req, res) => {
   }
 
   try {
-    const prompt = `You are an expert curriculum developer and academic examiner.
-Generate exactly 10 academic questions based on the following school syllabus context:
-- Education Board: ${board}
-- Grade/Class: ${grade}
-- Subject/Module: ${subject}
-- Chapter: ${chapter}
-- Specific Topics of focus: ${topics || "general topics under chapter"}
-- Difficulty Level: ${difficulty || "Medium"}
+    const gradeNumber = parseInt(String(grade).replace(/\D/g, ""));
+    console.log("Original Grade:", grade);
+    console.log("Parsed Grade:", gradeNumber);
+    
+    const normalizedBoard =
+      board === "State Board" ? "TS SSC" : board;
 
-You MUST include a variety of question types such as:
-1. MCQ (Multiple Choice Questions) - must have options and correct answer
-2. Short Answer - open ended question with suggested answer
-3. Conceptual - questions checking deep understanding of concepts with suggested explanation
-4. True or False - must have True/False options and correct answer
+    console.log("Original Board:", board);
+    console.log("Normalized Board:", normalizedBoard);
+    const knowledgeContext = await searchKnowledge(
+      
+      `${chapter} ${topics || ""}`,
+      normalizedBoard,
+      gradeNumber,
+      subject,
+      chapter,
+      5
+    );
+    
+    console.log("==================================");
+    console.log("KNOWLEDGE");
+    console.log("==================================");
+    console.log(knowledgeContext);
+  
 
-Format your output STRICTLY as a JSON array of objects. Each object should have the following structure:
-{
-  "id": number (1 to 10),
-  "question": "The question text",
-  "type": "mcq" | "short_answer" | "conceptual" | "true_false",
-  "options": ["Option A", "Option B", "Option C", "Option D"] (only for mcq and true_false types, otherwise empty or null. For true_false, use ["True", "False"]),
-  "correctAnswer": "The correct answer (e.g. the specific option for mcq/true_false, or an ideal brief answer explanation for other types)"
-}
+    const knowledgeText = buildPrompt(
+      `${topics || ""} ${difficulty || "Medium"}`,
+      knowledgeContext
+    );
 
-Do not include any markdown backticks, HTML tags, explanations, or text outside the JSON array. Start directly with [ and end with ].`;
+    console.log("==================================");
+    console.log("KNOWLEDGE CONTEXT");
+    console.log("==================================");
+    console.log(knowledgeText);
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
-      contents: prompt,
-      config: {
+  
+    const prompt = knowledgeText;
+    console.log("Prompt Length:", prompt.length);
+    console.log("🚀 Sending request to Gemini...");
+    
+
+    const response = await generateWithRetry(
+      ai,
+      prompt,
+      {
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.ARRAY,
@@ -98,7 +149,9 @@ Do not include any markdown backticks, HTML tags, explanations, or text outside 
           }
         }
       }
-    });
+      
+    );
+    console.log("✅ Gemini responded.");
 
     const text = response.text;
     if (!text) {
@@ -106,10 +159,15 @@ Do not include any markdown backticks, HTML tags, explanations, or text outside 
     }
 
     const parsedQuestions = JSON.parse(text.trim());
+    console.log("======================================");
+    console.log("GENERATED QUESTIONS JSON");
+    console.log("======================================");
+    console.log(JSON.stringify(parsedQuestions, null, 2));
     return res.json({ questions: parsedQuestions });
 
   } catch (error: any) {
-    console.error("Gemini Generation Error:", error);
+    console.error("Assessment Generation Error:");
+    console.error(error);
     // Return high-quality fallbacks on failure
     return res.json({
       error: error.message,

@@ -1,41 +1,6 @@
 import { Student, Quiz, CalendarEvent, PortalSettings } from './types';
 
-export const INITIAL_STUDENTS: Student[] = [
-  {
-    id: 'elena-rostova',
-    name: 'Elena Rostova',
-    grade: 'Class 7',
-    school: 'Eduvia Academy Junior High',
-    board: 'State Board (Advanced)',
-    academicYearFrom: '2024',
-    academicYearTo: '2025',
-    email: 'elena.rostova@student.eduvia.org',
-    avatarColor: 'from-blue-500 to-indigo-600',
-    subjects: [
-      { id: 'math', name: 'Advanced Algebra', chaptersCount: 10, completedChapters: 10, percentage: 100, score: 94, status: 'Completed' },
-      { id: 'science', name: 'Biological Systems', chaptersCount: 8, completedChapters: 6, percentage: 75, score: 82, status: 'In Progress' },
-      { id: 'lit', name: 'Literature Analysis', chaptersCount: 10, completedChapters: 9, percentage: 90, score: 88, status: 'In Progress' },
-      { id: 'history', name: 'World History', chaptersCount: 6, completedChapters: 6, percentage: 100, score: 91, status: 'Completed' }
-    ]
-  },
-  {
-    id: 'julian-stark',
-    name: 'Julian Stark',
-    grade: 'Class 10',
-    school: 'Eduvia High School',
-    board: 'State Board',
-    academicYearFrom: '2024',
-    academicYearTo: '2025',
-    email: 'julian.stark@student.eduvia.org',
-    avatarColor: 'from-pink-500 to-rose-600',
-    subjects: [
-      { id: 'math', name: 'Mathematics', chaptersCount: 12, completedChapters: 6, percentage: 52, score: 76, status: 'In Progress' },
-      { id: 'science', name: 'General Science', chaptersCount: 10, completedChapters: 6, percentage: 61, score: 80, status: 'In Progress' },
-      { id: 'lit', name: 'English Literature', chaptersCount: 15, completedChapters: 12, percentage: 80, score: 85, status: 'In Progress' },
-      { id: 'history', name: 'History & Civics', chaptersCount: 8, completedChapters: 3, percentage: 37.5, score: 68, status: 'In Progress' }
-    ]
-  }
-];
+export const INITIAL_STUDENTS: Student[] = [];
 
 export const INITIAL_QUIZZES: Quiz[] = [
   {
@@ -80,7 +45,7 @@ export const INITIAL_EVENTS: CalendarEvent[] = [
 export const INITIAL_SETTINGS: PortalSettings = {
   fullName: 'Dr. Eleanor Thorne',
   email: 'e.thorne@edu-academy.com',
-  phone: '+1 (555) 234-5678',
+  phone: '',
   emailAlerts: true,
   smsNotifications: false,
   weeklyReports: true,

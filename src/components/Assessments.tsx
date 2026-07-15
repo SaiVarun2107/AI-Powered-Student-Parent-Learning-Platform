@@ -5,7 +5,7 @@ import {
   Award, 
   Clock, 
   HelpCircle, 
-  BookOpen, 
+  BookOpen,  
   Sparkles, 
   Plus, 
   Copy, 
@@ -62,18 +62,82 @@ export default function Assessments({
 
   // Available topics based on subject
   const getTopicsForSubject = () => {
-    if (!currentSubject) return [];
-    if (currentSubject.id === 'math') {
-      return ['Linear Equations', 'Quadratic Systems', 'Arithmetic Sequences', 'Circle Proofs', 'Trigonometric Identities'];
+
+  if (!currentSubject || !currentStudent) return [];
+
+  if (currentSubject.id === "math") {
+
+    // ==========================
+    // CLASS 9 MATHEMATICS
+    // ==========================
+    if (currentStudent.grade === "Class 9") {
+      return [
+        "Real Numbers",
+        "Polynomials and Factorisation",
+        "The Elements of Geometry",
+        "Lines and Angles",
+        "Co-Ordinate Geometry",
+        "Linear Equations in Two Variables",
+        "Triangles",
+        "Quadrilaterals",
+        "Statistics",
+        "Surface Areas and Volumes",
+        "Areas",
+        "Circles",
+        "Geometrical Constructions",
+        "Probability",
+        "Proofs in Mathematics Revision"
+      ];
     }
-    if (currentSubject.id === 'science') {
-      return ['Chemical Compounds', 'Balancing Equations', 'Cellular Division', 'Genetics & DNA', 'Newtonian Kinetics'];
+
+    // ==========================
+    // CLASS 10 MATHEMATICS
+    // ==========================
+    if (currentStudent.grade === "Class 10") {
+      return [
+        "Real Numbers",
+        "Sets",
+        "Polynomials",
+        "Pair of Linear Equations in Two Variables",
+        "Quadratic Equations",
+        "Progressions",
+        "Coordinate Geometry",
+        "Similar Triangles",
+        "Tangents and Secants to a Circle",
+        "Mensuration",
+        "Trigonometry",
+        "Applications of Trigonometry",
+        "Probability",
+        "Statistics"
+      ];
     }
-    if (currentSubject.id === 'lit') {
-      return ['Motif Identification', 'Victorian Criticism', 'Poetry Metrics', 'Syntactic Frameworks'];
-    }
-    return ['Industrial Automation', 'Post-War Frontiers', 'Constitutional Systems'];
-  };
+  }
+
+  if (currentSubject.id === "science") {
+    return [
+      "Chemical Compounds",
+      "Balancing Equations",
+      "Cellular Division",
+      "Genetics & DNA",
+      "Newtonian Kinetics"
+    ];
+  }
+
+  if (currentSubject.id === "lit") {
+    return [
+      "Motif Identification",
+      "Victorian Criticism",
+      "Poetry Metrics",
+      "Syntactic Frameworks"
+    ];
+  }
+
+  return [
+    "Industrial Automation",
+    "Post-War Frontiers",
+    "Constitutional Systems"
+  ];
+};
 
   const topics = getTopicsForSubject();
 
@@ -93,6 +157,8 @@ export default function Assessments({
 
     setIsGenerating(true);
     try {
+      console.log("Current Student:", currentStudent);
+      console.log("Grade:", currentStudent.grade);
       const response = await fetch('/api/assessment/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

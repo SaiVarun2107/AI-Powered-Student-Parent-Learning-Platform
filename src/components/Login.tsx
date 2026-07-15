@@ -5,7 +5,8 @@ import { ShieldAlert, KeyRound, Mail, Sparkles, User, ArrowLeft, GraduationCap, 
 
 interface LoginProps {
   onBack: () => void;
-  onLoginSuccess: (name: string) => void;
+  // Pass back name and email so the app can sync profile display values
+  onLoginSuccess: (name: string, email?: string) => void;
   mode?: 'parent' | 'student' | 'teacher';
 }
 
@@ -75,6 +76,50 @@ export default function Login({ onBack, onLoginSuccess, mode = 'parent' }: Login
 
   try {
 
+    // For parent mode, check localStorage first for demo persistence
+    const parentProfilesRaw = localStorage.getItem('parentProfiles');
+    const parentProfiles = parentProfilesRaw ? JSON.parse(parentProfilesRaw) : {};
+
+    if (!isRegister && mode === 'parent') {
+      const stored = parentProfiles[email?.toLowerCase()];
+      if (stored) {
+        // validate password first
+        if (stored.password !== password) {
+          throw new Error('Invalid password for this email');
+        }
+        // validate provided name matches stored name
+        if (fullName.trim() !== stored.name) {
+          throw new Error('Invalid username for this email');
+        }
+        // successful local login
+        onLoginSuccess(stored.name, email);
+        setLoading(false);
+        return;
+      }
+    }
+
+    // Local student auth: if a student exists in localStorage, validate against it
+    if (!isRegister && mode === 'student') {
+      try {
+        const studentsRaw = localStorage.getItem('students');
+        const students = studentsRaw ? JSON.parse(studentsRaw) : [];
+        const matched = students.find((s: any) => s.email && s.email.toLowerCase() === email?.toLowerCase());
+        if (matched) {
+          if (matched.password !== password) {
+            throw new Error('Invalid password for this student');
+          }
+          if (fullName.trim() !== matched.name) {
+            throw new Error('Invalid username for this email');
+          }
+          onLoginSuccess(matched.name, email);
+          setLoading(false);
+          return;
+        }
+      } catch (e) {
+        // ignore JSON errors and fall back to server login
+      }
+    }
+
     if (isRegister) {
         console.log("REGISTER BLOCK");
 
@@ -110,8 +155,14 @@ export default function Login({ onBack, onLoginSuccess, mode = 'parent' }: Login
       if (profileError) throw profileError;
 
       alert("Registration Successful!");
+      // persist parent profile locally for demo-mode logins
+      if (mode === 'parent') {
+        const key = email.trim().toLowerCase();
+        parentProfiles[key] = { name: fullName, password, phone: '' };
+        localStorage.setItem('parentProfiles', JSON.stringify(parentProfiles));
+      }
 
-      onLoginSuccess(fullName);
+      onLoginSuccess(fullName, email);
 
     } else {
       console.log("LOGIN BLOCK");
@@ -140,7 +191,12 @@ export default function Login({ onBack, onLoginSuccess, mode = 'parent' }: Login
         );
       }
 
-      onLoginSuccess(profile.full_name);
+      // Ensure the provided name matches stored profile name
+      if (fullName.trim() !== profile.full_name) {
+        throw new Error('Invalid username for this email');
+      }
+
+      onLoginSuccess(profile.full_name, email);
 
     }
 

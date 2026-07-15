@@ -5,7 +5,7 @@ import { ShieldAlert, KeyRound, Mail, Sparkles, User, ArrowLeft, GraduationCap, 
 
 interface LoginProps {
   onBack: () => void;
-  onLoginSuccess: (name: string) => void;
+  onLoginSuccess: (name: string, email?: string) => void;
   mode?: 'parent' | 'student' | 'teacher';
 }
 
@@ -103,7 +103,7 @@ export default function Register({ onBack, onLoginSuccess, mode = 'parent' }: Lo
 
     alert("Registration Successful!");
 
-    onLoginSuccess(fullName);
+    onLoginSuccess(fullName, email);
 
   } catch (err: any) {
     setError(err.message);

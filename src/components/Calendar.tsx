@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CalendarEvent } from '../types';
 import { 
@@ -27,12 +27,23 @@ export default function AcademicCalendar({
   studentName,
   onAddEvent
 }: CalendarProps) {
-  const [currentDate, setCurrentDate] = useState(new Date(2024, 9, 1)); // October 2024
-  const [selectedDay, setSelectedDay] = useState<number | null>(22); // Default to Oct 22, 2024
+  const today = new Date();
+  const isoToday = today.toISOString().slice(0, 10);
+  const [currentDate, setCurrentDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
+  const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate());
   const [showAddModal, setShowAddModal] = useState(false);
   const [newEventTitle, setNewEventTitle] = useState('');
-  const [newEventDate, setNewEventDate] = useState('2024-10-22');
+  const [newEventDate, setNewEventDate] = useState(isoToday);
   const [newEventType, setNewEventType] = useState<'exam' | 'assessment' | 'activity'>('assessment');
+
+  useEffect(() => {
+    if (selectedStudentId) {
+      const now = new Date();
+      setCurrentDate(new Date(now.getFullYear(), now.getMonth(), 1));
+      setSelectedDay(now.getDate());
+      setNewEventDate(now.toISOString().slice(0, 10));
+    }
+  }, [selectedStudentId]);
 
   // Month configurations
   const monthNames = [
