@@ -138,16 +138,8 @@ export default function Analytics({ student, quizzes, onChangeTab }: AnalyticsPr
   }, {} as Record<string, number>);
   const topGap = Object.entries(gapFrequency).sort((a, b) => b[1] - a[1])[0];
 
-  // Student specific mastery trends (Screen 7 sidebar)
+  // Student specific mastery trends derived from subject averages
   const getSubjectMasteryTrends = () => {
-    if (student.id === 'elena-rostova') {
-      return [
-        { name: 'Advanced Algebra', score: 94, trend: 'up', color: 'text-orange-600 bg-orange-50 border-orange-100' },
-        { name: 'Biological Systems', score: 82, trend: 'down', color: 'text-orange-600 bg-orange-50 border-orange-100' },
-        { name: 'Literature Analysis', score: 88, trend: 'up', color: 'text-orange-600 bg-orange-50 border-orange-100' },
-        { name: 'World History', score: 91, trend: 'flat', color: 'text-orange-600 bg-orange-50 border-orange-100' }
-      ];
-    }
     return subjectAverages.map((item) => ({
       name: item.name,
       score: item.score,

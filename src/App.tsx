@@ -22,6 +22,7 @@ import AcademicCalendar from './components/Calendar';
 import Support from './components/Support';
 import PortalSettingsComponent from './components/Settings';
 import AddChild from './components/AddChild';
+import Admin from './components/Admin';
 
 // Additional inline-icons for Student & Teacher spaces
 import { 
@@ -45,8 +46,8 @@ import {
 console.log(supabase);
 export default function App() {
   // Navigation states
-  const [role, setRole] = useState<'gateway' | 'login' | 'parent_portal' | 'student_space' | 'teacher_hub'>('gateway');
-  const [loginMode, setLoginMode] = useState<'parent' | 'student' | 'teacher'>('parent');
+  const [role, setRole] = useState<'gateway' | 'login' | 'parent_portal' | 'student_space' | 'teacher_hub' | 'admin_console'>('gateway');
+  const [loginMode, setLoginMode] = useState<'parent' | 'student' | 'teacher' | 'admin'>('parent');
   const [activeParentTab, setActiveParentTab] = useState<string>('dashboard');
   const [parentName, setParentName] = useState<string>('Dr. Eleanor Thorne');
 
@@ -673,6 +674,8 @@ export default function App() {
                   setRole('student_space');
                 } else if (loginMode === 'teacher') {
                   setRole('teacher_hub');
+                } else if (loginMode === 'admin') {
+                  setRole('admin_console');
                 }
               }}
             />
@@ -1447,6 +1450,20 @@ export default function App() {
                 </>
               )}
             </main>
+          </motion.div>
+        )}
+
+        {/* 6. ADMIN CONSOLE */}
+        {role === 'admin_console' && (
+          <motion.div
+            key="admin_console"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.28 }}
+            className="min-h-screen bg-slate-50 w-full"
+          >
+            <Admin onBack={() => setRole('gateway')} />
           </motion.div>
         )}
 

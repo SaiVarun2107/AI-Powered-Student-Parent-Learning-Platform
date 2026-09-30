@@ -37,7 +37,7 @@ export default function Support({ parentName }: SupportProps) {
     setExpandedFaq(expandedFaq === index ? null : index);
   };
 
-  const handleSendMessage = (text: string) => {
+  const handleSendMessage = async (text: string) => {
     if (!text.trim()) return;
 
     // Add user message
@@ -52,20 +52,14 @@ export default function Support({ parentName }: SupportProps) {
     setInputText('');
     setIsTyping(true);
 
-    // Simulate intelligent assistant reply
-    setTimeout(() => {
-      let replyText = "I appreciate you bringing this up. I will check the school board records for you. Is there anything else you'd like me to look into?";
-
-      const lowText = text.toLowerCase();
-      if (lowText.includes('add') || lowText.includes('child') || lowText.includes('student')) {
-        replyText = "To add a child profile, click the '+ Add Child Profile' button at the bottom of the student focus selector on the sidebar navigation, or click the '+ ADD NEW CHILD' button on the dashboard empty state. You will need their school name, current grade level, and email address.";
-      } else if (lowText.includes('score') || lowText.includes('completion') || lowText.includes('mastery')) {
-        replyText = "Curriculum mastery score is compiled using completed topics (50% weight) and accuracy from quiz evaluations assigned via the 'Assessments' generator (50% weight). Ensure they take regular quizzes to elevate mastery trends!";
-      } else if (lowText.includes('quiz') || lowText.includes('assign') || lowText.includes('eval')) {
-        replyText = "Navigate to the 'Assessments' generator using the sidebar. There you can configure custom student quizzes by selecting the child profile, subject track, chapter topic, question counts, and duration before dispatching.";
-      } else if (lowText.includes('exam') || lowText.includes('calendar')) {
-        replyText = "The academic calendar syncs school-wide dates (Quarterly Exams, Term tests) with individual homework assessments. Look at the 'Calendar' tab to check dates for each registered student profile.";
-      }
+    try {
+      const res = await fetch('/api/support/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, parentName })
+      });
+      const data = await res.json();
+      const replyText = data.reply || "I am your Eduvia Assistant. How can I assist you with your student's learning path today?";
 
       const botMsg: Message = {
         id: `b-${Date.now()}`,
@@ -75,8 +69,17 @@ export default function Support({ parentName }: SupportProps) {
       };
 
       setChatMessages(prev => [...prev, botMsg]);
+    } catch (err) {
+      const fallbackMsg: Message = {
+        id: `b-${Date.now()}`,
+        sender: 'assistant',
+        text: "I am ready to help! You can configure child profiles from the dashboard, launch quizzes from the Assessments tab, or track weekly progress in Analytics.",
+        timestamp: 'Just now'
+      };
+      setChatMessages(prev => [...prev, fallbackMsg]);
+    } finally {
       setIsTyping(false);
-    }, 1000);
+    }
   };
 
   // KB categories filter

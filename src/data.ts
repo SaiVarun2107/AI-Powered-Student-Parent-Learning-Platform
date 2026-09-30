@@ -1,6 +1,43 @@
 import { Student, Quiz, CalendarEvent, PortalSettings } from './types';
 
-export const INITIAL_STUDENTS: Student[] = [];
+export const INITIAL_STUDENTS: Student[] = [
+  {
+    id: 'julian-stark',
+    name: 'Julian Stark',
+    grade: 'Class 10',
+    school: 'Eduvia Academy Senior High',
+    board: 'State Board',
+    academicYearFrom: '2024',
+    academicYearTo: '2025',
+    email: 'julian.stark@student.eduvia.org',
+    password: 'studentpass123',
+    avatarColor: 'from-orange-500 to-amber-600',
+    subjects: [
+      { id: 'math', name: 'Mathematics', chaptersCount: 14, completedChapters: 8, percentage: 57, score: 85, status: 'In Progress' },
+      { id: 'science', name: 'General Science', chaptersCount: 12, completedChapters: 9, percentage: 75, score: 82, status: 'In Progress' },
+      { id: 'lit', name: 'English Literature', chaptersCount: 10, completedChapters: 7, percentage: 70, score: 88, status: 'In Progress' },
+      { id: 'history', name: 'History & Civics', chaptersCount: 8, completedChapters: 6, percentage: 75, score: 79, status: 'In Progress' }
+    ]
+  },
+  {
+    id: 'elena-rostova',
+    name: 'Elena Rostova',
+    grade: 'Class 9',
+    school: 'St. Jude International Academy',
+    board: 'TS SSC',
+    academicYearFrom: '2024',
+    academicYearTo: '2025',
+    email: 'elena.rostova@student.eduvia.org',
+    password: 'studentpass123',
+    avatarColor: 'from-indigo-500 to-purple-600',
+    subjects: [
+      { id: 'math', name: 'Mathematics', chaptersCount: 15, completedChapters: 12, percentage: 80, score: 92, status: 'In Progress' },
+      { id: 'science', name: 'General Science', chaptersCount: 11, completedChapters: 10, percentage: 91, score: 89, status: 'In Progress' },
+      { id: 'lit', name: 'English Literature', chaptersCount: 12, completedChapters: 11, percentage: 92, score: 94, status: 'In Progress' },
+      { id: 'history', name: 'History & Civics', chaptersCount: 8, completedChapters: 7, percentage: 88, score: 90, status: 'In Progress' }
+    ]
+  }
+];
 
 export const INITIAL_QUIZZES: Quiz[] = [
   {

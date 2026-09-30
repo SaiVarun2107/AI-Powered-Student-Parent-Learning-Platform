@@ -1,9 +1,9 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Sparkles, ArrowRight, ShieldCheck, GraduationCap, Users } from 'lucide-react';
+import { Sparkles, ArrowRight, ShieldCheck, GraduationCap, Users, Sliders } from 'lucide-react';
 
 interface GatewayProps {
-  onSelectRole: (role: 'parent' | 'student' | 'teacher') => void;
+  onSelectRole: (role: 'parent' | 'student' | 'teacher' | 'admin') => void;
 }
 
 // Framer motion variants for staggered lists
@@ -122,7 +122,7 @@ export default function Gateway({ onSelectRole }: GatewayProps) {
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left max-w-3xl mx-auto"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 text-left max-w-5xl mx-auto"
         >
           {/* PARENT HUB */}
           <motion.div 
@@ -196,6 +196,31 @@ export default function Gateway({ onSelectRole }: GatewayProps) {
               className="w-full py-3 px-4 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-orange-600/25"
             >
               <span>OPEN HUB</span>
+              <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform text-white" />
+            </button>
+          </motion.div>
+
+          {/* ADMIN CONSOLE */}
+          <motion.div 
+            variants={cardVariants}
+            whileHover={{ y: -8, scale: 1.03, transition: { duration: 0.2 } }}
+            whileTap={{ scale: 0.98 }}
+            className="group relative rounded-2xl bg-white border border-slate-200 p-6 flex flex-col justify-between transition-all hover:border-orange-500/50 hover:shadow-2xl hover:shadow-orange-500/5 cursor-pointer"
+            onClick={() => onSelectRole('admin')}
+          >
+            <div>
+              <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center mb-5 group-hover:bg-orange-100 group-hover:scale-110 transition-all duration-300">
+                <Sliders size={24} className="group-hover:rotate-6 transition-transform" />
+              </div>
+              <h3 className="font-sans font-semibold text-lg text-orange-600 mb-2">Admin Console</h3>
+              <p className="text-slate-600 text-sm font-sans mb-6">
+                Upload syllabus textbooks, trigger automated RAG chunking &amp; vector indexing, and inspect system telemetry.
+              </p>
+            </div>
+            <button 
+              className="w-full py-3 px-4 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-orange-600/25"
+            >
+              <span>ENTER CONSOLE</span>
               <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform text-white" />
             </button>
           </motion.div>

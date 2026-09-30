@@ -1,5 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+
 const ai = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY!,
 });
@@ -41,7 +43,16 @@ ${text}
 `;
 
     const response = await ai.models.generateContent({
-        model: "gemini-3.5-flash",
+        model: GEMINI_MODEL,
+        contents: prompt,
+    });
+
+    return response.text;
+}
+
+export async function askGemini(prompt: string) {
+    const response = await ai.models.generateContent({
+        model: GEMINI_MODEL,
         contents: prompt,
     });
 

@@ -40,36 +40,33 @@ export default function LearningPath({ student, quizzes, onChangeTab }: Learning
   const derivedLearningGaps = studentQuizzes.flatMap((quiz) => quiz.evaluation?.learningGaps || quiz.learningGaps || []);
   const uniqueLearningGaps = Array.from(new Set(derivedLearningGaps)).slice(0, 3);
 
-  // Growth recommendations tailored to child
+  // Growth recommendations tailored to child dynamically
   const getGrowthInsight = () => {
     if (uniqueLearningGaps.length > 0) {
       const focusAreas = uniqueLearningGaps.join(', ');
       return `Recent AI feedback highlights ${focusAreas}. Build the next study block around these growth areas to strengthen mastery quickly.`;
     }
-    if (student.id === 'elena-rostova') {
-      return "Elena exhibits robust comprehension in Literature Analysis and World History, but coordinate systems present minor friction. Revisit 'Introduction to Analytical Trigonometry' to reinforce upcoming milestones.";
-    } else if (student.id === 'julian-stark') {
-      return "Julian is displaying steady progress in general science, but Mathematics (currently 52%) represents a major core growth opportunity. Practice 'Quadratic Functions' using the micro-assessments builder.";
+    const lowestSubject = [...(student.subjects || [])].sort((a, b) => a.score - b.score)[0];
+    if (lowestSubject) {
+      return `${student.name} is demonstrating steady dedication. ${lowestSubject.name} (currently ${lowestSubject.score}%) represents the prime opportunity for score acceleration. Practice targeted micro-assessments to raise overall mastery above 85%.`;
     }
-    return `${student.name} is showing consistent dedication. Focus on weak sub-chapters in their curriculum dashboard to maximize general average mastery above 85%.`;
+    return `${student.name} is showing consistent dedication across all curriculum tracks. Focus on weak sub-chapters in their curriculum explorer to maximize general average mastery.`;
   };
 
-  // Student specific milestones
+  // Student specific milestones derived dynamically from active subjects
   const getMilestones = () => {
-    if (student.id === 'elena-rostova') {
+    if (!student.subjects || student.subjects.length === 0) {
       return [
-        { id: 1, title: 'Quadratic Equations II', subject: 'Advanced Algebra', status: 'active', desc: 'Synthesizing parabolas and roots.' },
-        { id: 2, title: 'Chemical Bonds & Balancing', subject: 'Biological Systems', status: 'locked', desc: 'Understanding covalent structures.' },
-        { id: 3, title: 'The Industrial Era Epoch', subject: 'World History', status: 'locked', desc: 'Socio-economic impact of automation.' },
-        { id: 4, title: 'Advanced Syntax & Character', subject: 'Literature Analysis', status: 'locked', desc: 'Deconstructing Victorian prose.' }
+        { id: 1, title: 'Foundational Knowledge', subject: 'Core Curriculum', status: 'active', desc: 'Initialize lesson progression.' }
       ];
     }
-    return [
-      { id: 1, title: 'Linear Systems & Variables', subject: 'Mathematics', status: 'active', desc: 'Solving equations in coordinate slots.' },
-      { id: 2, title: 'Acid-Base Neutralization Scale', subject: 'General Science', status: 'locked', desc: 'Sensing pH transitions.' },
-      { id: 3, title: 'Authorial Intent Motif', subject: 'English Literature', status: 'locked', desc: 'Dissecting prose context.' },
-      { id: 4, title: 'Industrialization Boundaries', subject: 'History & Civics', status: 'locked', desc: 'Mapping trade pact transitions.' }
-    ];
+    return student.subjects.slice(0, 4).map((sub, idx) => ({
+      id: idx + 1,
+      title: `${sub.name} Module ${sub.completedChapters + 1}`,
+      subject: sub.name,
+      status: idx === 0 ? 'active' : (sub.percentage >= 80 ? 'completed' : 'locked'),
+      desc: `Curriculum milestone for ${sub.name}. Completed: ${sub.completedChapters}/${sub.chaptersCount} chapters (${sub.percentage}%).`
+    }));
   };
 
   const milestones = getMilestones();

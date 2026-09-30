@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { supabase } from "../lib/supabase";
 import { motion } from 'motion/react';
-import { ShieldAlert, KeyRound, Mail, Sparkles, User, ArrowLeft, GraduationCap, Users } from 'lucide-react';
+import { ShieldAlert, KeyRound, Mail, Sparkles, User, ArrowLeft, GraduationCap, Users, Sliders } from 'lucide-react';
 
 interface LoginProps {
   onBack: () => void;
   // Pass back name and email so the app can sync profile display values
   onLoginSuccess: (name: string, email?: string) => void;
-  mode?: 'parent' | 'student' | 'teacher';
+  mode?: 'parent' | 'student' | 'teacher' | 'admin';
 }
 
 export default function Login({ onBack, onLoginSuccess, mode = 'parent' }: LoginProps) {
@@ -43,6 +43,18 @@ export default function Login({ onBack, onLoginSuccess, mode = 'parent' }: Login
           autofillPass: 'facultypass123',
           buttonText: 'ENTER TEACHER HUB',
           autofillBtnText: 'AUTOFILL TEACHER DEMO'
+        };
+      case 'admin':
+        return {
+          title: 'Admin Command Terminal',
+          description: 'Provide administrator credentials to manage curriculum ingestion and platform systems.',
+          icon: <Sliders size={24} />,
+          nameLabel: 'Admin Name',
+          autofillName: 'System Administrator',
+          autofillEmail: 'admin@eduvia.org',
+          autofillPass: 'adminpass123',
+          buttonText: 'ENTER ADMIN CONSOLE',
+          autofillBtnText: 'AUTOFILL ADMIN DEMO'
         };
       default:
         return {
@@ -96,6 +108,13 @@ export default function Login({ onBack, onLoginSuccess, mode = 'parent' }: Login
         setLoading(false);
         return;
       }
+    }
+
+    // Local admin auth: allow seamless access for demo
+    if (!isRegister && mode === 'admin') {
+      onLoginSuccess(fullName || 'System Administrator', email || 'admin@eduvia.org');
+      setLoading(false);
+      return;
     }
 
     // Local student auth: if a student exists in localStorage, validate against it

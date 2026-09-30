@@ -6,17 +6,25 @@ export interface PDFPage {
   text: string;
 }
 
-export async function extractPDFText(filePath: string): Promise<PDFPage[]> {
+export async function extractPDFText(
+  source: string | Uint8Array,
+  startPage?: number,
+  endPage?: number
+): Promise<PDFPage[]> {
   // Read the PDF into memory
-  const data = new Uint8Array(fs.readFileSync(filePath));
+  const data = typeof source === "string" ? new Uint8Array(fs.readFileSync(source)) : source;
 
   // Load the PDF
   const loadingTask = getDocument({ data });
   const pdf = await loadingTask.promise;
 
   const pages: PDFPage[] = [];
+  const start = startPage && startPage >= 1 ? Math.min(startPage, pdf.numPages) : 1;
+  const end = endPage && endPage >= start ? Math.min(endPage, pdf.numPages) : pdf.numPages;
 
-  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+  console.log(`[PDF Parser] Document loaded (${pdf.numPages} total pages). Extracting pages ${start} to ${end}...`);
+
+  for (let pageNum = start; pageNum <= end; pageNum++) {
     const page = await pdf.getPage(pageNum);
 
     const textContent = await page.getTextContent();
