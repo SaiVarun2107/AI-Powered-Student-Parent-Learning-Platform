@@ -77,9 +77,7 @@ export default function Gateway({ onSelectRole }: GatewayProps) {
           whileHover={{ scale: 1.05 }}
           className="inline-flex items-center justify-center gap-2 mb-4 cursor-pointer"
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-500 via-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/25">
-            <span className="font-sans font-extrabold text-xl tracking-tight text-white">E</span>
-          </div>
+          <img src="/favicon.png" alt="Eduvia" className="w-10 h-10 rounded-xl object-contain shadow-lg shadow-orange-500/25" />
           <span className="font-sans font-bold text-2xl tracking-tight text-slate-900">
             eduvia
           </span>

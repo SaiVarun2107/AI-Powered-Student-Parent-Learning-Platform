@@ -56,9 +56,7 @@ export default function Sidebar({
       {/* Brand Header */}
       <div className="p-6 border-b border-slate-200">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-orange-500 to-orange-600 flex items-center justify-center font-sans font-extrabold text-sm text-white shadow-sm">
-            E
-          </div>
+          <img src="/favicon.png" alt="Eduvia" className="w-8 h-8 rounded-lg object-contain shadow-sm" />
           <div>
             <span className="font-sans font-bold text-lg tracking-tight text-slate-900 block">eduvia</span>
             <span className="text-[10px] text-orange-600 font-mono tracking-wider uppercase block font-semibold">Academy Portal</span>
