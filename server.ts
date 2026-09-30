@@ -36,7 +36,7 @@ app.use((err: any, req: any, res: any, next: any) => {
   next(err);
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT: number = Number(process.env.PORT) || 3000;
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
 
 // Initialize Google Gemini SDK
