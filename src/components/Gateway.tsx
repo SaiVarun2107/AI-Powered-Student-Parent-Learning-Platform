@@ -35,33 +35,9 @@ const cardVariants = {
 export default function Gateway({ onSelectRole }: GatewayProps) {
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col items-center justify-center relative overflow-hidden p-6">
-      {/* Animated Background Decorative Rings & Floating Glows */}
-      <motion.div 
-        animate={{ 
-          y: [0, -20, 0],
-          scale: [1, 1.08, 1],
-          opacity: [0.7, 0.9, 0.7]
-        }}
-        transition={{ 
-          duration: 9, 
-          repeat: Infinity, 
-          ease: "easeInOut" 
-        }}
-        className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-3xl pointer-events-none" 
-      />
-      <motion.div 
-        animate={{ 
-          y: [0, 20, 0],
-          scale: [1, 0.92, 1],
-          opacity: [0.6, 0.8, 0.6]
-        }}
-        transition={{ 
-          duration: 11, 
-          repeat: Infinity, 
-          ease: "easeInOut" 
-        }}
-        className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-orange-600/5 rounded-full blur-3xl pointer-events-none" 
-      />
+      {/* Background Decorative Rings & Glows */}
+      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-orange-600/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#f1f5f9_1px,transparent_1px),linear-gradient(to_bottom,#f1f5f9_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-70 pointer-events-none" />
 
       <div className="max-w-4xl w-full z-10 text-center">
@@ -125,14 +101,11 @@ export default function Gateway({ onSelectRole }: GatewayProps) {
           {/* PARENT HUB */}
           <motion.div 
             variants={cardVariants}
-            whileHover={{ y: -8, scale: 1.03, transition: { duration: 0.2 } }}
-            whileTap={{ scale: 0.98 }}
-            className="group relative rounded-2xl bg-white border border-slate-200 p-6 flex flex-col justify-between transition-all hover:border-orange-500/50 hover:shadow-2xl hover:shadow-orange-500/5 cursor-pointer"
+            className="group relative rounded-2xl bg-white border border-slate-200 p-6 flex flex-col justify-between transition-all duration-200 ease-out hover:-translate-y-2 hover:shadow-xl hover:shadow-orange-500/10 hover:border-orange-400 active:scale-[0.99] cursor-pointer will-change-transform"
             onClick={() => onSelectRole('parent')}
           >
-            <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <div>
-              <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center mb-5 group-hover:bg-orange-100 group-hover:scale-110 transition-all duration-300">
+              <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center mb-5 group-hover:bg-orange-100 group-hover:scale-110 transition-all duration-200">
                 <ShieldCheck size={24} className="group-hover:rotate-6 transition-transform" />
               </div>
               <h3 className="font-sans font-semibold text-lg text-orange-600 mb-2">Parent Portal</h3>
@@ -151,13 +124,11 @@ export default function Gateway({ onSelectRole }: GatewayProps) {
           {/* STUDENT SPACE */}
           <motion.div 
             variants={cardVariants}
-            whileHover={{ y: -8, scale: 1.03, transition: { duration: 0.2 } }}
-            whileTap={{ scale: 0.98 }}
-            className="group relative rounded-2xl bg-white border border-slate-200 p-6 flex flex-col justify-between transition-all hover:border-orange-500/50 hover:shadow-2xl hover:shadow-orange-500/5 cursor-pointer"
+            className="group relative rounded-2xl bg-white border border-slate-200 p-6 flex flex-col justify-between transition-all duration-200 ease-out hover:-translate-y-2 hover:shadow-xl hover:shadow-orange-500/10 hover:border-orange-400 active:scale-[0.99] cursor-pointer will-change-transform"
             onClick={() => onSelectRole('student')}
           >
             <div>
-              <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center mb-5 group-hover:bg-orange-100 group-hover:scale-110 transition-all duration-300">
+              <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center mb-5 group-hover:bg-orange-100 group-hover:scale-110 transition-all duration-200">
                 <GraduationCap size={24} className="group-hover:rotate-6 transition-transform" />
               </div>
               <h3 className="font-sans font-semibold text-lg text-orange-600 mb-2">Student Space</h3>
@@ -176,13 +147,11 @@ export default function Gateway({ onSelectRole }: GatewayProps) {
           {/* TEACHER HUB */}
           <motion.div 
             variants={cardVariants}
-            whileHover={{ y: -8, scale: 1.03, transition: { duration: 0.2 } }}
-            whileTap={{ scale: 0.98 }}
-            className="group relative rounded-2xl bg-white border border-slate-200 p-6 flex flex-col justify-between transition-all hover:border-orange-500/50 hover:shadow-2xl hover:shadow-orange-500/5 cursor-pointer"
+            className="group relative rounded-2xl bg-white border border-slate-200 p-6 flex flex-col justify-between transition-all duration-200 ease-out hover:-translate-y-2 hover:shadow-xl hover:shadow-orange-500/10 hover:border-orange-400 active:scale-[0.99] cursor-pointer will-change-transform"
             onClick={() => onSelectRole('teacher')}
           >
             <div>
-              <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center mb-5 group-hover:bg-orange-100 group-hover:scale-110 transition-all duration-300">
+              <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center mb-5 group-hover:bg-orange-100 group-hover:scale-110 transition-all duration-200">
                 <Users size={24} className="group-hover:rotate-6 transition-transform" />
               </div>
               <h3 className="font-sans font-semibold text-lg text-orange-600 mb-2">Teacher Hub</h3>
@@ -201,13 +170,11 @@ export default function Gateway({ onSelectRole }: GatewayProps) {
           {/* ADMIN CONSOLE */}
           <motion.div 
             variants={cardVariants}
-            whileHover={{ y: -8, scale: 1.03, transition: { duration: 0.2 } }}
-            whileTap={{ scale: 0.98 }}
-            className="group relative rounded-2xl bg-white border border-slate-200 p-6 flex flex-col justify-between transition-all hover:border-orange-500/50 hover:shadow-2xl hover:shadow-orange-500/5 cursor-pointer"
+            className="group relative rounded-2xl bg-white border border-slate-200 p-6 flex flex-col justify-between transition-all duration-200 ease-out hover:-translate-y-2 hover:shadow-xl hover:shadow-orange-500/10 hover:border-orange-400 active:scale-[0.99] cursor-pointer will-change-transform"
             onClick={() => onSelectRole('admin')}
           >
             <div>
-              <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center mb-5 group-hover:bg-orange-100 group-hover:scale-110 transition-all duration-300">
+              <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center mb-5 group-hover:bg-orange-100 group-hover:scale-110 transition-all duration-200">
                 <Sliders size={24} className="group-hover:rotate-6 transition-transform" />
               </div>
               <h3 className="font-sans font-semibold text-lg text-orange-600 mb-2">Admin Console</h3>

@@ -22,8 +22,10 @@ import {
   Clock,
   Eye,
   Info,
-  X
+  X,
+  GraduationCap
 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface AdminProps {
   onBack: () => void;
@@ -78,6 +80,9 @@ export default function Admin({ onBack }: AdminProps) {
   const [totalEmbeddings, setTotalEmbeddings] = useState(0);
   const [viewingChapter, setViewingChapter] = useState<ChapterItem | null>(null);
 
+  const [studentCount, setStudentCount] = useState(2);
+  const [parentCount, setParentCount] = useState(1);
+
   // Fetch live knowledge base from backend
   const fetchKnowledgeBase = async () => {
     setKbLoading(true);
@@ -97,8 +102,48 @@ export default function Admin({ onBack }: AdminProps) {
     }
   };
 
+  const loadUserCounts = async () => {
+    let sCount = 2;
+    let pCount = 1;
+    try {
+      const rawStudents = localStorage.getItem('students');
+      if (rawStudents) {
+        const parsed = JSON.parse(rawStudents);
+        if (Array.isArray(parsed) && parsed.length > 0) sCount = parsed.length;
+      }
+      const rawParents = localStorage.getItem('parentProfiles');
+      if (rawParents) {
+        const parsed = JSON.parse(rawParents);
+        const keys = Object.keys(parsed);
+        if (keys.length > 0) pCount = keys.length;
+      }
+    } catch (e) {}
+
+    try {
+      const { count: sbStudentCount } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('role', 'student');
+      if (typeof sbStudentCount === 'number' && sbStudentCount > 0) {
+        sCount = Math.max(sCount, sbStudentCount);
+      }
+
+      const { count: sbParentCount } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('role', 'parent');
+      if (typeof sbParentCount === 'number' && sbParentCount > 0) {
+        pCount = Math.max(pCount, sbParentCount);
+      }
+    } catch (e) {}
+
+    setStudentCount(sCount);
+    setParentCount(pCount);
+  };
+
   useEffect(() => {
     fetchKnowledgeBase();
+    loadUserCounts();
   }, []);
 
   // Handle PDF file selection & conversion to base64
@@ -352,13 +397,13 @@ export default function Admin({ onBack }: AdminProps) {
               </div>
 
               {/* Bento Metrics Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                 <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-mono uppercase text-slate-400 font-semibold tracking-wider">Curriculum Chapters</span>
                     <BookOpen size={18} className="text-orange-600" />
                   </div>
-                  <div className="text-2xl font-sans font-extrabold text-slate-900">{chapters.length || 14} Chapters</div>
+                  <div className="text-xl font-sans font-extrabold text-slate-900">{chapters.length || 14} Chapters</div>
                   <span className="text-[10px] text-emerald-600 font-sans font-semibold bg-emerald-50 px-2 py-0.5 rounded-full inline-block">
                     TS SSC &amp; CBSE Grounded
                   </span>
@@ -369,20 +414,20 @@ export default function Admin({ onBack }: AdminProps) {
                     <span className="text-[10px] font-mono uppercase text-slate-400 font-semibold tracking-wider">Indexed Concepts</span>
                     <Sparkles size={18} className="text-amber-500" />
                   </div>
-                  <div className="text-2xl font-sans font-extrabold text-slate-900">{totalConcepts || 124} Concepts</div>
+                  <div className="text-xl font-sans font-extrabold text-slate-900">{totalConcepts || 124} Concepts</div>
                   <span className="text-[10px] text-orange-600 font-sans font-semibold bg-orange-50 px-2 py-0.5 rounded-full inline-block">
                     Atomic Knowledge Base
                   </span>
                 </div>
 
-                <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-2">
+                <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-mono uppercase text-slate-400 font-semibold tracking-wider">Vector Embeddings</span>
                     <Database size={18} className="text-blue-600" />
                   </div>
-                  <div className="text-2xl font-sans font-extrabold text-slate-900">{totalEmbeddings || 540} Vectors</div>
+                  <div className="text-xl font-sans font-extrabold text-slate-900">{totalEmbeddings || 540} Vectors</div>
                   <span className="text-[10px] text-blue-600 font-sans font-semibold bg-blue-50 px-2 py-0.5 rounded-full inline-block">
-                    pgvector 768-Dimensions
+                    pgvector 3072-Dim
                   </span>
                 </div>
 
@@ -391,9 +436,33 @@ export default function Admin({ onBack }: AdminProps) {
                     <span className="text-[10px] font-mono uppercase text-slate-400 font-semibold tracking-wider">Gemini Engine</span>
                     <Cpu size={18} className="text-emerald-600" />
                   </div>
-                  <div className="text-2xl font-sans font-extrabold text-slate-900">Gemini 3.8 Flash</div>
+                  <div className="text-xl font-sans font-extrabold text-slate-900">Gemini 3.8 Flash</div>
                   <span className="text-[10px] text-emerald-600 font-sans font-semibold bg-emerald-50 px-2 py-0.5 rounded-full inline-block">
                     Latency: 280ms
+                  </span>
+                </div>
+
+                {/* Student Users Metric */}
+                <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono uppercase text-slate-400 font-semibold tracking-wider">Student Users</span>
+                    <GraduationCap size={18} className="text-indigo-600" />
+                  </div>
+                  <div className="text-xl font-sans font-extrabold text-slate-900">{studentCount} Students</div>
+                  <span className="text-[10px] text-indigo-600 font-sans font-semibold bg-indigo-50 px-2 py-0.5 rounded-full inline-block">
+                    Parent-Managed Pupils
+                  </span>
+                </div>
+
+                {/* Parent Users Metric */}
+                <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono uppercase text-slate-400 font-semibold tracking-wider">Parent Users</span>
+                    <Users size={18} className="text-rose-600" />
+                  </div>
+                  <div className="text-xl font-sans font-extrabold text-slate-900">{parentCount} Parents</div>
+                  <span className="text-[10px] text-rose-600 font-sans font-semibold bg-rose-50 px-2 py-0.5 rounded-full inline-block">
+                    Active Guardians
                   </span>
                 </div>
               </div>

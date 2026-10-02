@@ -43,7 +43,6 @@ import {
   ChevronRight
 } from 'lucide-react';
 
-console.log(supabase);
 export default function App() {
   // Navigation states
   const [role, setRole] = useState<'gateway' | 'login' | 'parent_portal' | 'student_space' | 'teacher_hub' | 'admin_console'>('gateway');
@@ -218,6 +217,40 @@ export default function App() {
       // ignore
     }
   }, [selectedStudentId]);
+
+  // Synchronize student data across Parent Portal and Student Space
+  useEffect(() => {
+    try {
+      localStorage.setItem('students', JSON.stringify(students));
+    } catch (e) {}
+  }, [students]);
+
+  // Synchronize quizzes data across Parent Portal and Student Space
+  useEffect(() => {
+    try {
+      localStorage.setItem('quizzes', JSON.stringify(quizzes));
+    } catch (e) {}
+  }, [quizzes]);
+
+  // When switching roles between Parent and Student, reload from shared storage
+  useEffect(() => {
+    try {
+      const rawStudents = localStorage.getItem('students');
+      if (rawStudents) {
+        const parsed = JSON.parse(rawStudents);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setStudents(parsed);
+        }
+      }
+      const rawQuizzes = localStorage.getItem('quizzes');
+      if (rawQuizzes) {
+        const parsed = JSON.parse(rawQuizzes);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setQuizzes(parsed);
+        }
+      }
+    } catch (e) {}
+  }, [role]);
 
   const handleStartSolvingQuiz = (quiz: Quiz) => {
     setActiveSolvingQuiz(quiz);
@@ -431,6 +464,30 @@ export default function App() {
           };
         }
         return q;
+      }));
+
+      setStudents(prev => prev.map(s => {
+        if (s.id === activeSolvingQuiz.studentId) {
+          return {
+            ...s,
+            subjects: s.subjects.map(subj => {
+              if (subj.name === activeSolvingQuiz.subject) {
+                const newComp = Math.min(subj.chaptersCount, subj.completedChapters + 1);
+                const newPct = Math.round((newComp / subj.chaptersCount) * 100);
+                const newScore = Math.min(100, Math.round((subj.score + fallbackEvaluation.percentage) / 2 || fallbackEvaluation.percentage));
+                return {
+                  ...subj,
+                  completedChapters: newComp,
+                  percentage: newPct,
+                  score: newScore,
+                  status: newPct === 100 ? 'Completed' : 'In Progress'
+                };
+              }
+              return subj;
+            })
+          };
+        }
+        return s;
       }));
 
       setQuizScoreReport(`Evaluation uploaded. You scored ${correctCount}/${total} correct. ${fallbackEvaluation.summary}`);
