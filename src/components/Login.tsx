@@ -101,9 +101,7 @@ export default function Login({ onBack, onLoginSuccess, mode = 'parent' }: Login
 
       // 3. REGISTRATION (Parent / Teacher)
       if (isRegister) {
-        if (!phone.trim()) {
-          throw new Error('Please enter your mobile phone number.');
-        }
+        const cleanPhone = phone.trim();
 
         // Try Supabase Auth
         try {
@@ -122,7 +120,7 @@ export default function Login({ onBack, onLoginSuccess, mode = 'parent' }: Login
               id: data.user.id,
               full_name: fullName.trim(),
               role: mode,
-              phone: phone.trim(),
+              phone: cleanPhone,
             });
           }
         } catch (supabaseErr: any) {
@@ -137,7 +135,7 @@ export default function Login({ onBack, onLoginSuccess, mode = 'parent' }: Login
           parentProfiles[key] = {
             name: fullName.trim(),
             password,
-            phone: phone.trim(),
+            phone: cleanPhone,
             role: mode
           };
           localStorage.setItem('parentProfiles', JSON.stringify(parentProfiles));
@@ -330,22 +328,24 @@ export default function Login({ onBack, onLoginSuccess, mode = 'parent' }: Login
               </div>
             </div>
 
-            {/* Mobile Number: Shown on Sign Up for all EXCEPT student */}
+            {/* Mobile Number: Shown on Sign Up for all EXCEPT student (Optional) */}
             {isRegister && mode !== 'student' && (
               <div>
-                <label className="block text-xs font-semibold tracking-wider text-slate-500 uppercase mb-1.5 font-mono">
-                  Mobile Number
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-semibold tracking-wider text-slate-500 uppercase font-mono">
+                    Mobile Number
+                  </label>
+                  <span className="text-[10px] text-slate-400 font-sans">Optional</span>
+                </div>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                     <Phone size={18} />
                   </div>
                   <input
                     type="tel"
-                    required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+91 98765 43210"
+                    placeholder="+91 98765 43210 (optional)"
                     className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-orange-500 focus:ring-1 focus:ring-orange-500 text-slate-900 placeholder-slate-400 font-sans text-sm outline-none transition-all"
                   />
                 </div>
